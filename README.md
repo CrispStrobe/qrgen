@@ -1,20 +1,20 @@
-# QR Code Generator
+# QR Code Generator - Akademie Version
 
-A production-ready QR code generator application with dual deployment strategy.
+Akademie-A branded QR code generator for internal use.
 
-## Deployments
+## Deployment
 
-### Public Version (GitHub Pages)
-- **URL**: https://crispstrobe.github.io/qrgen
-- **Branch**: `main`
-- **Features**: Generic QR code generator (no default logo)
-- **Use Case**: Public-facing, general audience
+This branch deploys to Vercel with Akademie-A branding.
 
-### Akademie Version (Vercel)
-- **URL**: Deployed via Vercel
-- **Branch**: `akademie`
-- **Features**: Akademie-A branded QR codes
-- **Use Case**: Internal/branded use
+**Live URL**: Deployed via Vercel (see Vercel dashboard)
+
+## Features
+
+- QR code generation with customizable colors
+- **Akademie-A logo embedded by default**
+- Configurable size and error correction levels
+- Download generated QR codes as PNG
+- Modern, responsive UI
 
 ## Development
 
@@ -31,34 +31,18 @@ npm run build
 
 ## Deployment
 
-### GitHub Pages (Automatic)
-Push to `main` branch triggers automatic deployment.
-
-### Vercel (Manual)
 ```bash
-# Switch to akademie branch
-git checkout akademie
-
 # Deploy to Vercel
 vercel --prod
 ```
 
-## Branch Structure
+## Branch Information
 
-- `main` - Public version (GitHub Pages)
-- `akademie` - Akademie-branded version (Vercel)
+This is the `akademie` branch - DO NOT merge into `main`.
 
-## Features
+- `main` branch = Public version (GitHub Pages, no logo)
+- `akademie` branch = Branded version (Vercel, with logo)
 
-- QR code generation with customizable colors
-- Configurable size and error correction levels
-- Optional logo/branding support
-- Download generated QR codes as PNG
-- Modern, responsive UI
+## Branding
 
-## Technology Stack
-
-- React 19
-- QRCode.js library
-- Tailwind CSS
-- GitHub Actions for CI/CD
+This version includes the Akademie-A logo by default on all generated QR codes.
