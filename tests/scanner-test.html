@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QR Code Scanner Test</title>
+    <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+    <script>
+        // QRCode is now available globally
+        window.addEventListener('load', function() {
+            console.log('QRCode library loaded:', typeof QRCode !== 'undefined');
+            if (typeof QRCode === 'undefined') {
+                alert('Failed to load QRCode library. Check console for errors.');
+            }
+        });
+    </script>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        h1 { color: #0E2136; margin-bottom: 30px; }
+        
+        .test-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+        
+        .test-card {
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 20px;
+        }
+        
+        .test-card.pass { border-color: #10b981; background: #f0fdf4; }
+        .test-card.fail { border-color: #ef4444; background: #fef2f2; }
+        .test-card.pending { border-color: #f59e0b; background: #fffbeb; }
+        
+        .qr-preview {
+            width: 200px;
+            height: 200px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+        }
+        
+        .result {
+            padding: 10px;
+            border-radius: 4px;
+            margin-top: 10px;
+            font-family: monospace;
+            word-break: break-all;
+        }
+        
+        .result.success { background: #d1fae5; color: #065f46; }
+        .result.error { background: #fee2e2; color: #991b1b; }
+        
+        button {
+            background: #0E2136;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        
+        button:hover { background: #1a3a5f; }
+        
+        .progress { margin-top: 20px; }
+        
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        
+        .stat {
+            text-align: center;
+            padding: 20px;
+            background: #f9fafb;
+            border-radius: 8px;
+        }
+        
+        .stat-value { font-size: 32px; font-weight: bold; color: #0E2136; }
+        .stat-label { font-size: 14px; color: #6b7280; margin-top: 5px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 QR Code Scanner Test Suite</h1>
+        
+        <div class="stats">
+            <div class="stat">
+                <div class="stat-value" id="total-tests">0</div>
+                <div class="stat-label">Total Tests</div>
+            </div>
+            <div class="stat">
+                <div class="stat-value" id="passed-tests">0</div>
+                <div class="stat-label">Passed ✓</div>
+            </div>
+            <div class="stat">
+                <div class="stat-value" id="failed-tests">0</div>
+                <div class="stat-label">Failed ✗</div>
+            </div>
+            <div class="stat">
+                <div class="stat-value" id="success-rate">0%</div>
+                <div class="stat-label">Success Rate</div>
+            </div>
+        </div>
+        
+        <button onclick="runAllTests()">▶️ Run All Tests</button>
+        <button onclick="downloadReport()">📥 Download Report</button>
+        
+        <div class="progress">
+            <div id="progress-text">Click "Run All Tests" to begin...</div>
+        </div>
+        
+        <div class="test-grid" id="test-results"></div>
+    </div>
+
+    <script>
+        const TEST_CONTENT = 'https://crispstrobe.github.io/qrgen';
+        const STYLES = ['standard', 'rounded', 'dots', 'geometric', 'neon', 'minimal', 'liquid'];
+        
+        let testResults = [];
+        
+        // Generate artistic QR
+        async function generateArtisticQR(content, style) {
+            return new Promise((resolve) => {
+                const canvas = document.createElement('canvas');
+                canvas.width = 400;
+                canvas.height = 400;
+                const ctx = canvas.getContext('2d');
+                
+                // Use the correct API
+                QRCode.toCanvas(canvas, content, {
+                    width: 400,
+                    margin: 2,
+                    color: { dark: '#000000', light: '#FFFFFF' },
+                    errorCorrectionLevel: 'H'
+                }, (error) => {
+                    if (error) {
+                        console.error(error);
+                        resolve(null);
+                        return;
+                    }
+                    
+                    // Get QR data
+                    const imageData = ctx.getImageData(0, 0, 400, 400);
+                    
+                    // Apply artistic style
+                    applyStyle(ctx, imageData, style, 400);
+                    
+                    resolve(canvas.toDataURL('image/png'));
+                });
+            });
+        }
+        
+        function applyStyle(ctx, imageData, style, size) {
+            const moduleSize = Math.floor(size / 45);
+            ctx.fillStyle = '#FFFFFF';
+            ctx.fillRect(0, 0, size, size);
+            ctx.fillStyle = '#0E2136';
+            
+            for (let y = 0; y < size; y += moduleSize) {
+                for (let x = 0; x < size; x += moduleSize) {
+                    const idx = (y * size + x) * 4;
+                    const isDark = imageData.data[idx] < 128;
+                    
+                    if (isDark) {
+                        switch(style) {
+                            case 'rounded':
+                                ctx.beginPath();
+                                ctx.roundRect(x, y, moduleSize, moduleSize, moduleSize * 0.4);
+                                ctx.fill();
+                                break;
+                            case 'dots':
+                                ctx.beginPath();
+                                ctx.arc(x + moduleSize/2, y + moduleSize/2, moduleSize/2, 0, Math.PI * 2);
+                                ctx.fill();
+                                break;
+                            case 'geometric':
+                                ctx.beginPath();
+                                ctx.moveTo(x + moduleSize/2, y);
+                                ctx.lineTo(x + moduleSize, y + moduleSize/2);
+                                ctx.lineTo(x + moduleSize/2, y + moduleSize);
+                                ctx.lineTo(x, y + moduleSize/2);
+                                ctx.closePath();
+                                ctx.fill();
+                                break;
+                            case 'neon':
+                                ctx.shadowColor = '#0E2136';
+                                ctx.shadowBlur = moduleSize;
+                                ctx.fillRect(x, y, moduleSize, moduleSize);
+                                ctx.shadowBlur = 0;
+                                break;
+                            case 'minimal':
+                                const s = moduleSize * 0.3;
+                                ctx.fillRect(x + (moduleSize-s)/2, y + (moduleSize-s)/2, s, s);
+                                break;
+                            case 'liquid':
+                                ctx.beginPath();
+                                for (let i = 0; i < 8; i++) {
+                                    const angle = (i / 8) * Math.PI * 2;
+                                    const r = moduleSize/2 * 0.85;
+                                    const px = x + moduleSize/2 + r * Math.cos(angle);
+                                    const py = y + moduleSize/2 + r * Math.sin(angle);
+                                    if (i === 0) ctx.moveTo(px, py);
+                                    else ctx.lineTo(px, py);
+                                }
+                                ctx.closePath();
+                                ctx.fill();
+                                break;
+                            default:
+                                ctx.fillRect(x, y, moduleSize, moduleSize);
+                        }
+                    }
+                }
+            }
+        }
+        
+        // Decode QR from canvas/image
+        async function decodeQR(dataUrl) {
+            return new Promise((resolve) => {
+                const img = new Image();
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    canvas.width = img.width;
+                    canvas.height = img.height;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0);
+                    
+                    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                    const decoded = jsQR(imageData.data, imageData.width, imageData.height);
+                    
+                    resolve(decoded ? decoded.data : null);
+                };
+                img.src = dataUrl;
+            });
+        }
+        
+        // Apply distortion (simulates camera)
+        async function applyDistortion(dataUrl) {
+            return new Promise((resolve) => {
+                const img = new Image();
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    // Slight size change (camera zoom)
+                    canvas.width = 380;
+                    canvas.height = 420;
+                    const ctx = canvas.getContext('2d');
+                    
+                    // White background
+                    ctx.fillStyle = '#FFFFFF';
+                    ctx.fillRect(0, 0, canvas.width, canvas.height);
+                    
+                    // Slight rotation
+                    ctx.translate(canvas.width/2, canvas.height/2);
+                    ctx.rotate(5 * Math.PI / 180);
+                    ctx.translate(-canvas.width/2, -canvas.height/2);
+                    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                    
+                    resolve(canvas.toDataURL('image/png'));
+                };
+                img.src = dataUrl;
+            });
+        }
+        
+        // Run single test
+        async function runTest(style) {
+            const testResult = {
+                style: style,
+                passed: false,
+                decodedContent: null,
+                qrImage: null,
+                error: null
+            };
+            
+            try {
+                // Generate QR
+                const qrImage = await generateArtisticQR(TEST_CONTENT, style);
+                testResult.qrImage = qrImage;
+                
+                // Try to decode
+                const decoded = await decodeQR(qrImage);
+                testResult.decodedContent = decoded;
+                
+                // Check if matches
+                if (decoded === TEST_CONTENT) {
+                    testResult.passed = true;
+                } else {
+                    testResult.error = `Decoded: ${decoded}`;
+                }
+                
+            } catch (err) {
+                testResult.error = err.message;
+            }
+            
+            return testResult;
+        }
+        
+        // Run all tests
+        async function runAllTests() {
+            const resultsDiv = document.getElementById('test-results');
+            const progressText = document.getElementById('progress-text');
+            resultsDiv.innerHTML = '';
+            testResults = [];
+            
+            let passed = 0;
+            let failed = 0;
+            
+            for (let i = 0; i < STYLES.length; i++) {
+                const style = STYLES[i];
+                progressText.textContent = `Testing ${style}... (${i+1}/${STYLES.length})`;
+                
+                const result = await runTest(style);
+                testResults.push(result);
+                
+                // Update UI
+                const card = document.createElement('div');
+                card.className = `test-card ${result.passed ? 'pass' : 'fail'}`;
+                card.innerHTML = `
+                    <h3>${style.toUpperCase()} ${result.passed ? '✓' : '✗'}</h3>
+                    ${result.qrImage ? `<img src="${result.qrImage}" class="qr-preview" alt="QR Code">` : ''}
+                    <div class="result ${result.passed ? 'success' : 'error'}">
+                        ${result.passed ? 
+                            `✓ Correctly decoded: ${result.decodedContent}` : 
+                            `✗ ${result.error || 'Failed to decode'}`
+                        }
+                    </div>
+                `;
+                resultsDiv.appendChild(card);
+                
+                if (result.passed) passed++;
+                else failed++;
+                
+                // Update stats
+                document.getElementById('total-tests').textContent = testResults.length;
+                document.getElementById('passed-tests').textContent = passed;
+                document.getElementById('failed-tests').textContent = failed;
+                document.getElementById('success-rate').textContent = 
+                    Math.round((passed / testResults.length) * 100) + '%';
+            }
+            
+            progressText.textContent = `Complete! ${passed}/${STYLES.length} tests passed.`;
+        }
+        
+        // Download test report
+        function downloadReport() {
+            const report = {
+                timestamp: new Date().toISOString(),
+                testContent: TEST_CONTENT,
+                results: testResults.map(r => ({
+                    style: r.style,
+                    passed: r.passed,
+                    decoded: r.decodedContent,
+                    error: r.error
+                })),
+                summary: {
+                    total: testResults.length,
+                    passed: testResults.filter(r => r.passed).length,
+                    failed: testResults.filter(r => !r.passed).length
+                }
+            };
+            
+            const blob = new Blob([JSON.stringify(report, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `qr-test-report-${Date.now()}.json`;
+            a.click();
+        }
+    </script>
+</body>
+</html>
