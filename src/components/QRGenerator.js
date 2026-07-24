@@ -119,8 +119,10 @@ function QRGenerator({ addToHistory, darkMode }) {
         break;
         
       case 'dots':
+        // Use filled circles with proper spacing for better detection
+        const dotRadius = moduleSize / 2 * 0.85; // 85% of module for good spacing
         ctx.beginPath();
-        ctx.arc(x + moduleSize / 2, y + moduleSize / 2, moduleSize / 2, 0, Math.PI * 2);
+        ctx.arc(x + moduleSize / 2, y + moduleSize / 2, dotRadius, 0, Math.PI * 2);
         ctx.fill();
         break;
         
