@@ -197,10 +197,16 @@ function QRGenerator({ addToHistory, darkMode }) {
     setLoading(true);
     setArtVariants([]);
     
+    // Enforce minimum size for artistic styles (400px minimum for reliable scanning)
+    const effectiveSize = Math.max(size, 400);
+    if (size < 400) {
+      setSize(400);
+    }
+    
     try {
       // Generate base QR as image
       const baseQRUrl = await QRCode.toDataURL(content, {
-        width: size,
+        width: effectiveSize,
         margin: 2,
         color: {
           dark: fgColor,
@@ -221,25 +227,25 @@ function QRGenerator({ addToHistory, darkMode }) {
       
       // Create canvas for artistic rendering
       const canvas = document.createElement('canvas');
-      canvas.width = size;
-      canvas.height = size;
+      canvas.width = effectiveSize;
+      canvas.height = effectiveSize;
       const ctx = canvas.getContext('2d');
       
       // Draw base QR to get module data
       ctx.drawImage(img, 0, 0);
-      const imageData = ctx.getImageData(0, 0, size, size);
+      const imageData = ctx.getImageData(0, 0, effectiveSize, effectiveSize);
       
       // Clear and draw background
       ctx.fillStyle = bgColor;
-      ctx.fillRect(0, 0, size, size);
+      ctx.fillRect(0, 0, effectiveSize, effectiveSize);
       
       // Calculate module size (estimate from QR structure)
-      const moduleSize = Math.max(2, Math.floor(size / 40));
+      const moduleSize = Math.max(3, Math.floor(effectiveSize / 45));
       
       // Scan and draw artistic modules
-      for (let y = 0; y < size; y += moduleSize) {
-        for (let x = 0; x < size; x += moduleSize) {
-          const idx = (y * size + x) * 4;
+      for (let y = 0; y < effectiveSize; y += moduleSize) {
+        for (let x = 0; x < effectiveSize; x += moduleSize) {
+          const idx = (y * effectiveSize + x) * 4;
           const brightness = imageData.data[idx];
           const isDark = brightness < 128;
           
@@ -255,8 +261,8 @@ function QRGenerator({ addToHistory, darkMode }) {
         logoImg.crossOrigin = 'anonymous';
         await new Promise((resolve, reject) => {
           logoImg.onload = () => {
-            const logoX = (size - logoSize) / 2;
-            const logoY = (size - logoSize) / 2;
+            const logoX = (effectiveSize - logoSize) / 2;
+            const logoY = (effectiveSize - logoSize) / 2;
             
             // White background for logo
             ctx.fillStyle = bgColor;
