@@ -153,31 +153,34 @@ function QRGenerator({ addToHistory, darkMode }) {
         break;
         
       case 'neon':
-        // Glow effect
+        // Glow effect - reduced blur for better edge detection
         ctx.shadowColor = fgColor;
-        ctx.shadowBlur = moduleSize;
+        ctx.shadowBlur = moduleSize * 0.5; // Reduced from full size to 50%
         ctx.fillRect(x, y, moduleSize, moduleSize);
         ctx.shadowBlur = 0;
         break;
         
       case 'minimal':
-        const lineSize = moduleSize * 0.3;
+        // Increased module size for reliable scanning
+        const lineSize = moduleSize * 0.4; // Increased from 30% to 40%
         ctx.fillRect(x + (moduleSize - lineSize) / 2, y + (moduleSize - lineSize) / 2, lineSize, lineSize);
         break;
         
       case 'graffiti':
+        // Reduced randomness to maintain QR alignment
         ctx.save();
         ctx.translate(x + moduleSize / 2, y + moduleSize / 2);
-        ctx.rotate((Math.random() - 0.5) * 0.3);
-        ctx.scale(1 + Math.random() * 0.2, 1 + Math.random() * 0.2);
+        ctx.rotate((Math.random() - 0.5) * 0.15); // Reduced from ±0.3 to ±0.15 radians
+        ctx.scale(1 + Math.random() * 0.1, 1 + Math.random() * 0.1); // Reduced scale variance
         ctx.fillRect(-moduleSize / 2, -moduleSize / 2, moduleSize, moduleSize);
         ctx.restore();
         break;
         
       case 'watercolor':
-        ctx.globalAlpha = 0.7 + Math.random() * 0.3;
+        // Increased minimum opacity for better contrast
+        ctx.globalAlpha = 0.8 + Math.random() * 0.2; // Raised from 0.7-1.0 to 0.8-1.0
         ctx.beginPath();
-        ctx.arc(x + moduleSize / 2, y + moduleSize / 2, moduleSize / 2 * (0.8 + Math.random() * 0.2), 0, Math.PI * 2);
+        ctx.arc(x + moduleSize / 2, y + moduleSize / 2, moduleSize / 2 * (0.85 + Math.random() * 0.15), 0, Math.PI * 2);
         ctx.fill();
         ctx.globalAlpha = 1;
         break;
