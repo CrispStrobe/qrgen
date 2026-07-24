@@ -186,75 +186,81 @@ function QRGenerator({ addToHistory, darkMode }) {
     setArtVariants([]);
     
     try {
-      // Generate base QR matrix
-      const tempCanvas = document.createElement('canvas');
-      await QRCode.toCanvas(tempCanvas, content, {
+      // Generate base QR as image
+      const baseQRUrl = await QRCode.toDataURL(content, {
         width: size,
         margin: 2,
-        color: { dark: '#000000', light: '#FFFFFF' },
+        color: {
+          dark: fgColor,
+          light: bgColor,
+        },
         errorCorrectionLevel: errorLevel,
       });
       
-      const ctx = tempCanvas.getContext('2d');
-      const imageData = ctx.getImageData(0, 0, tempCanvas.width, tempCanvas.height);
-      const moduleCount = Math.sqrt(imageData.data.length / 4);
-      const moduleSize = tempCanvas.width / moduleCount;
+      // Load the base QR image
+      const img = new Image();
+      img.crossOrigin = 'anonymous';
       
-      // Generate 3 variants
-      const variants = [];
-      for (let v = 0; v < 3; v++) {
-        const variantCanvas = document.createElement('canvas');
-        variantCanvas.width = size;
-        variantCanvas.height = size;
-        const vCtx = variantCanvas.getContext('2d');
-        
-        // Background
-        vCtx.fillStyle = bgColor;
-        vCtx.fillRect(0, 0, size, size);
-        
-        // Draw modules with artistic style
-        for (let row = 0; row < moduleCount; row++) {
-          for (let col = 0; col < moduleCount; col++) {
-            const x = Math.floor(col * moduleSize);
-            const y = Math.floor(row * moduleSize);
-            
-            // Check if module is dark
-            const idx = (row * moduleCount + col) * 4;
-            const isDark = imageData.data[idx] < 128;
-            
-            if (isDark) {
-              drawArtisticModule(vCtx, x, y, moduleSize, artStyle, true);
-            }
+      await new Promise((resolve, reject) => {
+        img.onload = resolve;
+        img.onerror = reject;
+        img.src = baseQRUrl;
+      });
+      
+      // Create canvas for artistic rendering
+      const canvas = document.createElement('canvas');
+      canvas.width = size;
+      canvas.height = size;
+      const ctx = canvas.getContext('2d');
+      
+      // Draw base QR to get module data
+      ctx.drawImage(img, 0, 0);
+      const imageData = ctx.getImageData(0, 0, size, size);
+      
+      // Clear and draw background
+      ctx.fillStyle = bgColor;
+      ctx.fillRect(0, 0, size, size);
+      
+      // Calculate module size (estimate from QR structure)
+      const moduleSize = Math.max(2, Math.floor(size / 40));
+      
+      // Scan and draw artistic modules
+      for (let y = 0; y < size; y += moduleSize) {
+        for (let x = 0; x < size; x += moduleSize) {
+          const idx = (y * size + x) * 4;
+          const brightness = imageData.data[idx];
+          const isDark = brightness < 128;
+          
+          if (isDark) {
+            drawArtisticModule(ctx, x, y, moduleSize, artStyle, true);
           }
         }
+      }
         
-        // Add logo if present
-        if (logo) {
-          const img = new Image();
-          img.crossOrigin = 'anonymous';
-          await new Promise((resolve, reject) => {
-            img.onload = () => {
-              const logoX = (size - logoSize) / 2;
-              const logoY = (size - logoSize) / 2;
-              
-              // White background for logo
-              vCtx.fillStyle = bgColor;
-              vCtx.fillRect(logoX - 4, logoY - 4, logoSize + 8, logoSize + 8);
-              
-              vCtx.drawImage(img, logoX, logoY, logoSize, logoSize);
-              resolve();
-            };
-            img.onerror = reject;
-            img.src = logo;
-          });
-        }
-        
-        variants.push(variantCanvas.toDataURL('image/png'));
+      // Add logo if present
+      if (logo) {
+        const logoImg = new Image();
+        logoImg.crossOrigin = 'anonymous';
+        await new Promise((resolve, reject) => {
+          logoImg.onload = () => {
+            const logoX = (size - logoSize) / 2;
+            const logoY = (size - logoSize) / 2;
+            
+            // White background for logo
+            ctx.fillStyle = bgColor;
+            ctx.fillRect(logoX - 4, logoY - 4, logoSize + 8, logoSize + 8);
+            
+            ctx.drawImage(logoImg, logoX, logoY, logoSize, logoSize);
+            resolve();
+          };
+          logoImg.onerror = reject;
+          logoImg.src = logo;
+        });
       }
       
-      setArtVariants(variants);
-      setQrImage(variants[0]);
-      setArtVariant(0);
+      const dataUrl = canvas.toDataURL('image/png');
+      setQrImage(dataUrl);
+      setArtVariants([dataUrl]);
       
       // Add to history
       addToHistory({
