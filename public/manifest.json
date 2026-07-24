@@ -1,6 +1,7 @@
 {
-  "short_name": "React App",
-  "name": "Create React App Sample",
+  "short_name": "QR Tool",
+  "name": "QR Code Generator & Scanner",
+  "description": "Generate and scan QR codes with ease",
   "icons": [
     {
       "src": "favicon.ico",
@@ -10,16 +11,36 @@
     {
       "src": "logo192.png",
       "type": "image/png",
-      "sizes": "192x192"
+      "sizes": "192x192",
+      "purpose": "any maskable"
     },
     {
       "src": "logo512.png",
       "type": "image/png",
-      "sizes": "512x512"
+      "sizes": "512x512",
+      "purpose": "any maskable"
     }
   ],
   "start_url": ".",
   "display": "standalone",
-  "theme_color": "#000000",
-  "background_color": "#ffffff"
+  "theme_color": "#0E2136",
+  "background_color": "#ffffff",
+  "orientation": "portrait",
+  "categories": ["utilities", "productivity"],
+  "shortcuts": [
+    {
+      "name": "Generate QR",
+      "short_name": "Generate",
+      "description": "Generate a new QR code",
+      "url": "/?action=generate",
+      "icons": [{ "src": "logo192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Scan QR",
+      "short_name": "Scan",
+      "description": "Scan a QR code",
+      "url": "/?action=scan",
+      "icons": [{ "src": "logo192.png", "sizes": "192x192" }]
+    }
+  ]
 }
