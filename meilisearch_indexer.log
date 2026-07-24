@@ -1,0 +1,135 @@
+2025-03-18 23:21:43,785 - INFO - Searching for files in /Users/christianstrobele/Documents/texte...
+2025-03-18 23:21:44,030 - INFO - Found 0 files matching patterns: ['1951*.txt']
+2025-03-18 23:21:44,031 - WARNING - No files found. Check your patterns and directory.
+2025-03-18 23:21:51,073 - INFO - Searching for files in /Users/christianstrobele/Documents/texte...
+2025-03-18 23:21:51,262 - INFO - Found 3 files matching patterns: ['1952*.txt']
+2025-03-18 23:21:51,263 - INFO - Loaded cache with 0 entries
+2025-03-18 23:21:51,275 - INFO - Connected to Meilisearch at http://localhost:7700 (version: unknown)
+2025-03-18 23:21:51,281 - INFO - Created index 'data_03' with primary key 'id'
+2025-03-18 23:21:51,281 - ERROR - Could not configure index settings: 'TaskInfo' object has no attribute 'update_settings'
+2025-03-18 23:21:51,281 - ERROR - Check that the Meilisearch server is running and accessible.
+2025-03-18 23:23:12,338 - INFO - Searching for files in /Users/christianstrobele/Documents/texte...
+2025-03-18 23:23:12,570 - INFO - Found 3 files matching patterns: ['1952*.txt']
+2025-03-18 23:23:12,570 - INFO - Loaded cache with 0 entries
+2025-03-18 23:23:12,583 - INFO - Connected to Meilisearch at http://localhost:7700 (version: unknown)
+2025-03-18 23:23:12,588 - WARNING - Error during index check/creation: 'Index' object is not subscriptable
+2025-03-18 23:23:12,591 - WARNING - Could not update primary key: 'Index' object has no attribute 'update_primary_key'
+2025-03-18 23:23:12,594 - INFO - Basic index settings for 'data_03' configured successfully
+2025-03-18 23:23:12,599 - INFO - Vector search enabled with 768 dimensions using REST API call
+2025-03-18 23:23:12,599 - INFO - Processing files...
+2025-03-18 23:23:12,618 - DEBUG - Document chunked into 3 parts
+2025-03-18 23:23:12,621 - DEBUG - Document chunked into 10 parts
+2025-03-18 23:23:12,637 - DEBUG - Document chunked into 275 parts
+2025-03-18 23:26:47,804 - INFO - Processing summary:
+2025-03-18 23:26:47,805 - INFO -   - Total files processed: 3
+2025-03-18 23:26:47,805 - INFO -   - New files: 3
+2025-03-18 23:26:47,805 - INFO -   - Updated files: 0
+2025-03-18 23:26:47,805 - INFO -   - Unchanged files (skipped): 0
+2025-03-18 23:26:47,805 - INFO -   - Files with errors: 0
+2025-03-18 23:26:47,805 - INFO -   - Documents created: 291 (3 parents + 288 chunks)
+2025-03-18 23:26:47,805 - INFO - Indexing documents...
+2025-03-18 23:26:47,983 - INFO - Indexed batch 1 (100 docs, 2.25 MB) in 0.08s
+2025-03-18 23:26:48,158 - INFO - Indexed batch 2 (100 docs, 2.25 MB) in 0.08s
+2025-03-18 23:26:48,316 - INFO - Indexed batch 3 (91 docs, 2.04 MB) in 0.07s
+2025-03-18 23:26:48,318 - INFO - Cache saved to .meilisearch_data_03_cache.json
+2025-03-18 23:26:48,318 - INFO - Indexing complete! 291 documents indexed in 3 batches.
+2025-03-18 23:27:35,321 - INFO - Searching for files in /Users/christianstrobele/Documents/texte...
+2025-03-18 23:27:35,555 - INFO - Found 3 files matching patterns: ['1953*.txt']
+2025-03-18 23:27:35,556 - INFO - Loaded cache with 3 entries
+2025-03-18 23:27:35,566 - INFO - Connected to Meilisearch at http://localhost:7700 (version: unknown)
+2025-03-18 23:27:35,570 - WARNING - Error during index check/creation: 'Index' object is not subscriptable
+2025-03-18 23:27:35,572 - WARNING - Could not update primary key: 'Index' object has no attribute 'update_primary_key'
+2025-03-18 23:27:35,575 - INFO - Basic index settings for 'data_03' configured successfully
+2025-03-18 23:27:35,577 - INFO - Vector search enabled with 768 dimensions using REST API call
+2025-03-18 23:27:35,577 - INFO - Processing files...
+2025-03-18 23:27:35,595 - DEBUG - Document chunked into 21 parts
+2025-03-18 23:27:35,605 - DEBUG - Document chunked into 119 parts
+2025-03-18 23:27:35,618 - DEBUG - Document chunked into 208 parts
+2025-03-18 23:27:47,477 - INFO - Searching for files in /Users/christianstrobele/Documents/texte...
+2025-03-18 23:27:47,666 - INFO - Found 1 files matching patterns: ['1954*.txt']
+2025-03-18 23:27:47,668 - INFO - Loaded cache with 3 entries
+2025-03-18 23:27:47,676 - INFO - Connected to Meilisearch at http://localhost:7700 (version: unknown)
+2025-03-18 23:27:47,680 - WARNING - Error during index check/creation: 'Index' object is not subscriptable
+2025-03-18 23:27:47,682 - WARNING - Could not update primary key: 'Index' object has no attribute 'update_primary_key'
+2025-03-18 23:27:47,685 - INFO - Basic index settings for 'data_03' configured successfully
+2025-03-18 23:27:47,687 - INFO - Vector search enabled with 768 dimensions using REST API call
+2025-03-18 23:27:47,687 - INFO - Processing files...
+2025-03-18 23:27:48,265 - INFO - Processing summary:
+2025-03-18 23:27:48,265 - INFO -   - Total files processed: 1
+2025-03-18 23:27:48,265 - INFO -   - New files: 1
+2025-03-18 23:27:48,265 - INFO -   - Updated files: 0
+2025-03-18 23:27:48,266 - INFO -   - Unchanged files (skipped): 0
+2025-03-18 23:27:48,266 - INFO -   - Files with errors: 0
+2025-03-18 23:27:48,266 - INFO -   - Documents created: 1
+2025-03-18 23:27:48,266 - INFO - Indexing documents...
+2025-03-18 23:27:48,275 - INFO - Indexed batch 1 (1 docs, 0.02 MB) in 0.01s
+2025-03-18 23:27:48,275 - INFO - Cache saved to .meilisearch_data_03_cache.json
+2025-03-18 23:27:48,275 - INFO - Indexing complete! 1 documents indexed in 1 batches.
+2025-03-18 23:29:43,128 - INFO - Searching for files in /Users/christianstrobele/Documents/texte...
+2025-03-18 23:29:43,370 - INFO - Found 1 files matching patterns: ['1954*.txt']
+2025-03-18 23:29:43,370 - INFO - Loaded cache with 1 entries
+2025-03-18 23:29:43,383 - INFO - Connected to Meilisearch at http://localhost:7700 (version: unknown)
+2025-03-18 23:29:43,387 - WARNING - Error during index check/creation: 'Index' object is not subscriptable
+2025-03-18 23:29:43,389 - WARNING - Could not update primary key: 'Index' object has no attribute 'update_primary_key'
+2025-03-18 23:29:43,392 - INFO - Basic index settings for 'data_03' configured successfully
+2025-03-18 23:29:43,399 - INFO - Vector search enabled with 768 dimensions using REST API call
+2025-03-18 23:29:43,399 - INFO - Processing files...
+2025-03-18 23:29:43,415 - INFO - Processing summary:
+2025-03-18 23:29:43,415 - INFO -   - Total files processed: 1
+2025-03-18 23:29:43,415 - INFO -   - New files: 0
+2025-03-18 23:29:43,415 - INFO -   - Updated files: 0
+2025-03-18 23:29:43,415 - INFO -   - Unchanged files (skipped): 1
+2025-03-18 23:29:43,415 - INFO -   - Files with errors: 0
+2025-03-18 23:29:43,415 - INFO - No new or updated files to index.
+2025-03-18 23:32:41,833 - INFO - Searching for files in /Users/christianstrobele/Documents/texte...
+2025-03-18 23:32:42,069 - INFO - Found 3 files matching patterns: ['1953*.txt']
+2025-03-18 23:32:42,069 - INFO - Loaded cache with 1 entries
+2025-03-18 23:32:42,082 - INFO - Connected to Meilisearch at http://localhost:7700 (version: unknown)
+2025-03-18 23:32:42,086 - WARNING - Error during index check/creation: 'Index' object is not subscriptable
+2025-03-18 23:32:42,088 - WARNING - Could not update primary key: 'Index' object has no attribute 'update_primary_key'
+2025-03-18 23:32:42,091 - INFO - Basic index settings for 'data_03' configured successfully
+2025-03-18 23:32:42,093 - INFO - Vector search enabled with 768 dimensions using REST API call
+2025-03-18 23:32:42,093 - INFO - Processing files...
+2025-03-18 23:32:42,112 - DEBUG - Document chunked into 21 parts
+2025-03-18 23:32:42,123 - DEBUG - Document chunked into 119 parts
+2025-03-18 23:32:42,142 - DEBUG - Document chunked into 208 parts
+2025-03-18 23:36:15,312 - INFO - Searching for files in /Users/christianstrobele/Documents/texte...
+2025-03-18 23:36:15,539 - INFO - Found 1 files matching patterns: ['1954*.txt']
+2025-03-18 23:36:15,539 - INFO - Loaded cache with 1 entries
+2025-03-18 23:36:15,551 - INFO - Connected to Meilisearch at http://localhost:7700 (version: unknown)
+2025-03-18 23:36:15,555 - WARNING - Error during index check/creation: 'Index' object is not subscriptable
+2025-03-18 23:36:15,557 - WARNING - Could not update primary key: 'Index' object has no attribute 'update_primary_key'
+2025-03-18 23:36:15,560 - INFO - Basic index settings for 'data_03' configured successfully
+2025-03-18 23:36:15,562 - INFO - Vector search enabled with 768 dimensions using REST API call
+2025-03-18 23:36:15,562 - INFO - Processing files...
+2025-03-18 23:36:15,577 - INFO - Processing summary:
+2025-03-18 23:36:15,577 - INFO -   - Total files processed: 1
+2025-03-18 23:36:15,577 - INFO -   - New files: 0
+2025-03-18 23:36:15,577 - INFO -   - Updated files: 0
+2025-03-18 23:36:15,577 - INFO -   - Unchanged files (skipped): 1
+2025-03-18 23:36:15,577 - INFO -   - Files with errors: 0
+2025-03-18 23:36:15,577 - INFO - No new or updated files to index.
+2025-03-18 23:36:21,297 - INFO - Searching for files in /Users/christianstrobele/Documents/texte...
+2025-03-18 23:36:21,490 - INFO - Found 4 files matching patterns: ['1955*.txt']
+2025-03-18 23:36:21,490 - INFO - Loaded cache with 1 entries
+2025-03-18 23:36:21,499 - INFO - Connected to Meilisearch at http://localhost:7700 (version: unknown)
+2025-03-18 23:36:21,503 - WARNING - Error during index check/creation: 'Index' object is not subscriptable
+2025-03-18 23:36:21,505 - WARNING - Could not update primary key: 'Index' object has no attribute 'update_primary_key'
+2025-03-18 23:36:21,508 - INFO - Basic index settings for 'data_03' configured successfully
+2025-03-18 23:36:21,510 - INFO - Vector search enabled with 768 dimensions using REST API call
+2025-03-18 23:36:21,510 - INFO - Processing files...
+2025-03-18 23:36:21,523 - DEBUG - Document chunked into 4 parts
+2025-03-18 23:36:21,525 - DEBUG - Document chunked into 6 parts
+2025-03-18 23:36:21,525 - DEBUG - Document chunked into 6 parts
+2025-03-18 23:36:21,527 - DEBUG - Document chunked into 13 parts
+2025-03-18 23:36:53,427 - INFO - Processing summary:
+2025-03-18 23:36:53,428 - INFO -   - Total files processed: 4
+2025-03-18 23:36:53,428 - INFO -   - New files: 4
+2025-03-18 23:36:53,428 - INFO -   - Updated files: 0
+2025-03-18 23:36:53,428 - INFO -   - Unchanged files (skipped): 0
+2025-03-18 23:36:53,428 - INFO -   - Files with errors: 0
+2025-03-18 23:36:53,428 - INFO -   - Documents created: 33 (4 parents + 29 chunks)
+2025-03-18 23:36:53,428 - INFO - Indexing documents...
+2025-03-18 23:36:53,503 - INFO - Indexed batch 1 (33 docs, 0.73 MB) in 0.03s
+2025-03-18 23:36:53,503 - INFO - Cache saved to .meilisearch_data_03_cache.json
+2025-03-18 23:36:53,504 - INFO - Indexing complete! 33 documents indexed in 1 batches.

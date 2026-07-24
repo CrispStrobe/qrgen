@@ -16,33 +16,8 @@ const QRCodeGenerator = () => {
   const [defaultLogoLoaded, setDefaultLogoLoaded] = useState(false);
   const canvasRef = useRef(null);
 
-  // Load default logo on component mount
-  useEffect(() => {
-    // Check if we already tried to load the default logo
-    if (!logo && !defaultLogoLoaded) {
-      setDefaultLogoLoaded(true);
-      
-      // Try to load the default logo (akademie.png)
-      try {
-        const img = new Image();
-        img.onload = () => {
-          const canvas = document.createElement('canvas');
-          canvas.width = img.width;
-          canvas.height = img.height;
-          const ctx = canvas.getContext('2d');
-          ctx.drawImage(img, 0, 0);
-          setLogo(canvas.toDataURL('image/png'));
-        };
-        img.onerror = (err) => {
-          console.error('Error loading default logo:', err);
-        };
-        // Set the source to the akademie.png file in the public folder
-        img.src = process.env.PUBLIC_URL + '/akademie.png';
-      } catch (err) {
-        console.error('Error setting up default logo:', err);
-      }
-    }
-  }, [logo, defaultLogoLoaded]);
+  // No default logo for public version (main branch)
+  // Logo will only be loaded if user uploads one manually
 
   // Function to generate QR code with QRCode library
   const generateQRCode = async () => {
