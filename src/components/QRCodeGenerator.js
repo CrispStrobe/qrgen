@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import QRCode from 'qrcode';
-import { FiDownload, FiCopy, FiShare2, FiImage, FiCheck, FiX } from 'react-icons/fi';
+import { FiDownload, FiCopy, FiShare2, FiImage, FiCheck, FiX, FiDroplet } from 'react-icons/fi';
 
 function QRGenerator({ addToHistory, darkMode }) {
   const [content, setContent] = useState('https://example.com');
@@ -17,8 +17,67 @@ function QRGenerator({ addToHistory, darkMode }) {
   const [colorPickerActive, setColorPickerActive] = useState(false);
   const [pickedColor, setPickedColor] = useState(null);
   const [logoFileName, setLogoFileName] = useState('');
+  const [isDragging, setIsDragging] = useState(false);
   const fileInputRef = useRef(null);
   const logoCanvasRef = useRef(null);
+  const dropZoneRef = useRef(null);
+
+  // Drag and drop handlers
+  useEffect(() => {
+    const dropZone = dropZoneRef.current;
+    if (!dropZone) return;
+
+    const handleDragEnter = (e) => {
+      e.preventDefault();
+      setIsDragging(true);
+    };
+
+    const handleDragLeave = (e) => {
+      e.preventDefault();
+      setIsDragging(false);
+    };
+
+    const handleDragOver = (e) => {
+      e.preventDefault();
+    };
+
+    const handleDrop = (e) => {
+      e.preventDefault();
+      setIsDragging(false);
+      
+      const files = e.dataTransfer.files;
+      if (files && files[0]) {
+        handleFile(files[0]);
+      }
+    };
+
+    dropZone.addEventListener('dragenter', handleDragEnter);
+    dropZone.addEventListener('dragleave', handleDragLeave);
+    dropZone.addEventListener('dragover', handleDragOver);
+    dropZone.addEventListener('drop', handleDrop);
+
+    return () => {
+      dropZone.removeEventListener('dragenter', handleDragEnter);
+      dropZone.removeEventListener('dragleave', handleDragLeave);
+      dropZone.removeEventListener('dragover', handleDragOver);
+      dropZone.removeEventListener('drop', handleDrop);
+    };
+  }, []);
+
+  const handleFile = (file) => {
+    if (!file.type.startsWith('image/')) {
+      alert('Please select an image file');
+      return;
+    }
+    
+    setLogoFileName(file.name);
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      setLogo(event.target.result);
+      setColorPickerActive(false);
+    };
+    reader.readAsDataURL(file);
+  };
 
   const generateQR = async () => {
     if (!content.trim()) return;
@@ -124,14 +183,7 @@ function QRGenerator({ addToHistory, darkMode }) {
   const handleLogoUpload = (e) => {
     const file = e.target.files[0];
     if (!file) return;
-    
-    setLogoFileName(file.name);
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      setLogo(event.target.result);
-      setColorPickerActive(false);
-    };
-    reader.readAsDataURL(file);
+    handleFile(file);
   };
 
   const pickColorFromLogo = (e) => {
@@ -183,9 +235,9 @@ function QRGenerator({ addToHistory, darkMode }) {
 
   const removeLogo = () => {
     setLogo(null);
-    if (fileInputRef.current) {
-      fileInputRef.current.value = '';
-    }
+    setLogoFileName('');
+    setColorPickerActive(false);
+    setPickedColor(null);
   };
 
   return (
@@ -308,10 +360,17 @@ function QRGenerator({ addToHistory, darkMode }) {
             
             {showLogoUpload && (
               <div className="space-y-3">
-                {/* File Picker */}
-                <div className={`border-2 border-dashed rounded-lg p-4 text-center ${
-                  darkMode ? 'border-gray-600 bg-gray-700' : 'border-gray-300 bg-gray-50'
-                }`}>
+                {/* Drag & Drop Zone */}
+                <div 
+                  ref={dropZoneRef}
+                  className={`border-2 border-dashed rounded-lg p-6 text-center transition-colors ${
+                    isDragging
+                      ? 'border-blue-500 bg-blue-50'
+                      : darkMode 
+                        ? 'border-gray-600 bg-gray-700'
+                        : 'border-gray-300 bg-gray-50'
+                  }`}
+                >
                   <input
                     ref={fileInputRef}
                     type="file"
@@ -324,12 +383,12 @@ function QRGenerator({ addToHistory, darkMode }) {
                     htmlFor="logo-upload"
                     className="cursor-pointer"
                   >
-                    <FiImage size={32} className="mx-auto mb-2 opacity-50" />
+                    <FiImage size={32} className={`mx-auto mb-2 ${isDragging ? 'text-blue-500' : 'opacity-50'}`} />
                     <p className={`text-sm ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
-                      {logoFileName || 'Click to select image'}
+                      {isDragging ? 'Drop image here' : 'Drag & drop or click to select'}
                     </p>
                     <p className={`text-xs mt-1 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
-                      PNG, JPG, SVG supported
+                      PNG, JPG, SVG • All platforms
                     </p>
                   </label>
                 </div>
@@ -367,21 +426,19 @@ function QRGenerator({ addToHistory, darkMode }) {
                                 : 'bg-gray-200 hover:bg-gray-300 text-gray-800'
                           }`}
                         >
+                          <FiDroplet size={16} />
                           <span className="inline-block w-4 h-4 rounded-full border border-white shadow-sm" 
                             style={{ backgroundColor: pickedColor || fgColor }} 
                           />
-                          {colorPickerActive ? 'Click on logo to pick color' : 'Extract color from logo'}
+                          {colorPickerActive ? 'Click logo to pick' : 'Extract color'}
                         </button>
                         
                         {/* Remove Logo */}
                         <button
-                          onClick={() => {
-                            removeLogo();
-                            setLogoFileName('');
-                            setColorPickerActive(false);
-                          }}
-                          className="w-full mt-2 py-1 px-3 text-sm text-red-600 hover:text-red-700"
+                          onClick={removeLogo}
+                          className="w-full mt-2 py-1 px-3 text-sm text-red-600 hover:text-red-700 flex items-center justify-center gap-1"
                         >
+                          <FiX size={16} />
                           Remove Logo
                         </button>
                       </div>
