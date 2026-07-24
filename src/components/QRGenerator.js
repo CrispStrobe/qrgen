@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import QRCode from 'qrcode';
-import { FiDownload, FiCopy, FiShare2, FiImage, FiCheck, FiX, FiDroplet, FiStar, FiZap } from 'react-icons/fi';
+import jsQR from 'jsqr';
+import { FiDownload, FiCopy, FiShare2, FiImage, FiCheck, FiX, FiDroplet, FiStar, FiZap, FiCheckCircle, FiAlertCircle, FiActivity } from 'react-icons/fi';
 
 function QRGenerator({ addToHistory, darkMode }) {
   const [content, setContent] = useState('https://example.com');
@@ -24,6 +25,12 @@ function QRGenerator({ addToHistory, darkMode }) {
   const [artStyle, setArtStyle] = useState('rounded');
   const [artVariant, setArtVariant] = useState(0);
   const [artVariants, setArtVariants] = useState([]);
+  
+  // Verification/Testing
+  const [verifying, setVerifying] = useState(false);
+  const [verified, setVerified] = useState(null);
+  const [decodedContent, setDecodedContent] = useState(null);
+  const [verificationDetails, setVerificationDetails] = useState(null);
   
   const fileInputRef = useRef(null);
   const logoCanvasRef = useRef(null);
@@ -262,6 +269,11 @@ function QRGenerator({ addToHistory, darkMode }) {
       setQrImage(dataUrl);
       setArtVariants([dataUrl]);
       
+      // Reset verification on new generation
+      setVerified(null);
+      setDecodedContent(null);
+      setVerificationDetails(null);
+      
       // Add to history
       addToHistory({
         type: 'generate',
@@ -328,6 +340,11 @@ function QRGenerator({ addToHistory, darkMode }) {
       const dataUrl = canvas.toDataURL('image/png');
       setQrImage(dataUrl);
       
+      // Reset verification on new generation
+      setVerified(null);
+      setDecodedContent(null);
+      setVerificationDetails(null);
+      
       addToHistory({
         type: 'generate',
         content: content,
@@ -338,6 +355,169 @@ function QRGenerator({ addToHistory, darkMode }) {
       console.error('Error generating QR:', err);
     }
     setLoading(false);
+  };
+
+  // Verify QR code is scannable and decodes correctly
+  const verifyQR = async () => {
+    if (!qrImage) return;
+    
+    setVerifying(true);
+    setVerified(null);
+    setDecodedContent(null);
+    setVerificationDetails(null);
+    
+    try {
+      // Create image from data URL
+      const img = new Image();
+      img.crossOrigin = 'anonymous';
+      
+      await new Promise((resolve, reject) => {
+        img.onload = resolve;
+        img.onerror = reject;
+        img.src = qrImage;
+      });
+      
+      // Draw to canvas for analysis
+      const canvas = document.createElement('canvas');
+      canvas.width = img.width;
+      canvas.height = img.height;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0);
+      
+      // Get image data
+      const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      
+      // Attempt to decode
+      const startTime = performance.now();
+      const decoded = jsQR(imageData.data, imageData.width, imageData.height);
+      const decodeTime = performance.now() - startTime;
+      
+      if (decoded) {
+        setDecodedContent(decoded.data);
+        
+        // Check if decoded content matches original
+        const match = decoded.data === content;
+        setVerified(match);
+        
+        setVerificationDetails({
+          decodeTime: Math.round(decodeTime * 100) / 100,
+          qrVersion: decoded.version,
+          location: decoded.location,
+          size: { width: imageData.width, height: imageData.height }
+        });
+        
+        // Add to history
+        addToHistory({
+          type: 'verify',
+          content: content,
+          decodedContent: decoded.data,
+          success: match,
+          artStyle: artMode ? artStyle : 'standard'
+        });
+      } else {
+        // Failed to decode
+        setVerified(false);
+        setDecodedContent(null);
+        setVerificationDetails({
+          decodeTime: Math.round(decodeTime * 100) / 100,
+          error: 'No QR code detected',
+          size: { width: imageData.width, height: imageData.height }
+        });
+        
+        addToHistory({
+          type: 'verify',
+          content: content,
+          decodedContent: null,
+          success: false,
+          artStyle: artMode ? artStyle : 'standard'
+        });
+      }
+    } catch (err) {
+      console.error('Verification error:', err);
+      setVerified(false);
+      setVerificationDetails({
+        error: err.message
+      });
+    }
+    
+    setVerifying(false);
+  };
+
+  // Run multiple verification tests with simulated distortions
+  const runComprehensiveTest = async () => {
+    if (!qrImage) return;
+    
+    setVerifying(true);
+    
+    try {
+      const img = new Image();
+      img.crossOrigin = 'anonymous';
+      
+      await new Promise((resolve, reject) => {
+        img.onload = resolve;
+        img.onerror = reject;
+        img.src = qrImage;
+      });
+      
+      const tests = [];
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      
+      // Test 1: Standard decode
+      canvas.width = img.width;
+      canvas.height = img.height;
+      ctx.drawImage(img, 0, 0);
+      const imageData1 = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      const decoded1 = jsQR(imageData1.data, imageData1.width, imageData1.height);
+      tests.push({
+        name: 'Standard',
+        passed: decoded1?.data === content,
+        content: decoded1?.data
+      });
+      
+      // Test 2: Slight rotation simulation (5 degrees)
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.save();
+      ctx.translate(canvas.width / 2, canvas.height / 2);
+      ctx.rotate(5 * Math.PI / 180);
+      ctx.drawImage(img, -canvas.width / 2, -canvas.height / 2);
+      ctx.restore();
+      const imageData2 = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      const decoded2 = jsQR(imageData2.data, imageData2.width, imageData2.height);
+      tests.push({
+        name: 'Rotated 5°',
+        passed: decoded2?.data === content,
+        content: decoded2?.data
+      });
+      
+      // Test 3: Scale down (simulate distance)
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.drawImage(img, canvas.width * 0.1, canvas.height * 0.1, canvas.width * 0.8, canvas.height * 0.8);
+      const imageData3 = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      const decoded3 = jsQR(imageData3.data, imageData3.width, imageData3.height);
+      tests.push({
+        name: 'Scaled 80%',
+        passed: decoded3?.data === content,
+        content: decoded3?.data
+      });
+      
+      // Count passed
+      const passed = tests.filter(t => t.passed).length;
+      setVerified(passed === tests.length);
+      setDecodedContent(tests[0].content);
+      setVerificationDetails({
+        tests: tests,
+        passed: passed,
+        total: tests.length,
+        successRate: Math.round((passed / tests.length) * 100)
+      });
+      
+    } catch (err) {
+      console.error('Test error:', err);
+      setVerified(false);
+    }
+    
+    setVerifying(false);
   };
 
   const downloadQR = () => {
@@ -779,13 +959,44 @@ function QRGenerator({ addToHistory, darkMode }) {
               )}
               
               {/* Action Buttons */}
-              <div className="flex gap-2 mt-4">
+              <div className="flex gap-2 mt-4 flex-wrap">
                 <button
                   onClick={downloadQR}
                   className="flex items-center gap-2 py-2 px-4 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors"
                 >
                   <FiDownload />
                   Download
+                </button>
+                
+                <button
+                  onClick={verifyQR}
+                  disabled={verifying}
+                  className={`flex items-center gap-2 py-2 px-4 rounded-lg transition-colors ${
+                    verifying
+                      ? 'bg-gray-400 cursor-not-allowed'
+                      : verified === true
+                        ? 'bg-green-600 text-white'
+                        : verified === false
+                          ? 'bg-red-600 text-white'
+                          : 'bg-blue-600 hover:bg-blue-700 text-white'
+                  }`}
+                >
+                  {verifying ? (
+                    <>
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white" />
+                      Testing...
+                    </>
+                  ) : verified !== null ? (
+                    <>
+                      {verified ? <FiCheckCircle /> : <FiAlertCircle />}
+                      {verified ? 'Verified ✓' : 'Failed ✗'}
+                    </>
+                  ) : (
+                    <>
+                      <FiActivity />
+                      Verify
+                    </>
+                  )}
                 </button>
                 
                 <button
@@ -814,6 +1025,65 @@ function QRGenerator({ addToHistory, darkMode }) {
                   Share
                 </button>
               </div>
+              
+              {/* Verification Status */}
+              {verified !== null && (
+                <div className={`mt-4 p-4 rounded-lg ${
+                  verified
+                    ? 'bg-green-50 border border-green-200'
+                    : 'bg-red-50 border border-red-200'
+                }`}>
+                  <div className="flex items-start gap-3">
+                    {verified ? (
+                      <FiCheckCircle className="text-green-600 mt-0.5" size={20} />
+                    ) : (
+                      <FiAlertCircle className="text-red-600 mt-0.5" size={20} />
+                    )}
+                    <div className="flex-1">
+                      <h4 className={`font-medium ${verified ? 'text-green-800' : 'text-red-800'}`}>
+                        {verified ? 'QR Code Verified Successfully!' : 'QR Code Verification Failed'}
+                      </h4>
+                      
+                      {decodedContent && (
+                        <p className={`text-sm mt-1 break-all ${verified ? 'text-green-700' : 'text-red-700'}`}>
+                          Decoded: {decodedContent}
+                        </p>
+                      )}
+                      
+                      {verificationDetails && (
+                        <div className="text-xs mt-2 space-y-1">
+                          {verificationDetails.decodeTime && (
+                            <p className={verified ? 'text-green-600' : 'text-red-600'}>
+                              Decode time: {verificationDetails.decodeTime}ms
+                            </p>
+                          )}
+                          {verificationDetails.size && (
+                            <p className="text-gray-600">
+                              Image size: {verificationDetails.size.width}x{verificationDetails.size.height}px
+                            </p>
+                          )}
+                          {verificationDetails.tests && (
+                            <div className="mt-2">
+                              <p className="font-medium">Test Results: {verificationDetails.passed}/{verificationDetails.total} passed ({verificationDetails.successRate}%)</p>
+                              {verificationDetails.tests.map((test, idx) => (
+                                <p key={idx} className={test.passed ? 'text-green-600' : 'text-red-600'}>
+                                  {test.passed ? '✓' : '✗'} {test.name}: {test.content || 'Failed'}
+                                </p>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      )}
+                      
+                      {!verified && !verificationDetails?.tests && (
+                        <p className="text-xs text-red-600 mt-1">
+                          The QR code could not be decoded. Try increasing the size or using a different style.
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              )}
             </>
           ) : (
             <div className={`w-full h-64 flex flex-col items-center justify-center rounded-lg ${

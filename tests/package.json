@@ -1,19 +1,14 @@
 {
   "name": "qr-generator-tests",
   "version": "1.0.0",
+  "type": "module",
   "scripts": {
-    "test": "vitest",
-    "test:ui": "vitest --ui",
-    "test:coverage": "vitest --coverage"
-  },
-  "devDependencies": {
-    "vitest": "^1.6.0",
-    "@vitest/ui": "^1.6.0"
+    "test": "node test-runner.js"
   },
   "dependencies": {
     "qrcode": "^1.5.3",
     "jsqr": "^1.4.0",
-    "canvas": "^2.11.2",
-    "sharp": "^0.33.3"
+    "sharp": "^0.33.3",
+    "pngjs": "^7.0.0"
   }
 }
