@@ -239,8 +239,40 @@ function QRGenerator({ addToHistory, darkMode }) {
       ctx.fillStyle = bgColor;
       ctx.fillRect(0, 0, effectiveSize, effectiveSize);
       
-      // Calculate module size (estimate from QR structure)
-      const moduleSize = Math.max(3, Math.floor(effectiveSize / 45));
+      // Calculate actual module size by detecting QR structure
+      // Find finder patterns (7x7 modules in corners) to determine module size
+      const detectModuleSize = (imgData, width) => {
+        // Scan from top-left to find first black pixel (finder pattern)
+        let startX = 0, startY = 0;
+        for (let y = 0; y < width; y++) {
+          for (let x = 0; x < width; x++) {
+            const idx = (y * width + x) * 4;
+            if (imgData.data[idx] < 128) {
+              startX = x;
+              startY = y;
+              break;
+            }
+          }
+          if (startX > 0) break;
+        }
+        
+        // Measure the width of the first black line (should be 7 modules wide)
+        let moduleWidth = 0;
+        for (let x = startX; x < width; x++) {
+          const idx = (startY * width + x) * 4;
+          if (imgData.data[idx] < 128) {
+            moduleWidth++;
+          } else {
+            break;
+          }
+        }
+        
+        // Finder pattern is 7 modules wide, so module size = width / 7
+        const detectedSize = Math.max(1, Math.round(moduleWidth / 7));
+        return detectedSize;
+      };
+      
+      const moduleSize = detectModuleSize(imageData, effectiveSize);
       
       // Scan and draw artistic modules
       for (let y = 0; y < effectiveSize; y += moduleSize) {
