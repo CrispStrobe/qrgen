@@ -204,84 +204,35 @@ function QRGenerator({ addToHistory, darkMode }) {
     }
     
     try {
-      // Generate base QR as image
-      const baseQRUrl = await QRCode.toDataURL(content, {
-        width: effectiveSize,
-        margin: 2,
-        color: {
-          dark: fgColor,
-          light: bgColor,
-        },
+      // Get QR matrix directly from the library
+      const qr = QRCode.create(content, {
         errorCorrectionLevel: errorLevel,
       });
       
-      // Load the base QR image
-      const img = new Image();
-      img.crossOrigin = 'anonymous';
+      const modules = qr.modules;
+      const moduleCount = modules.size;
+      const moduleSize = Math.floor(effectiveSize / moduleCount);
+      const offset = Math.floor((effectiveSize - moduleSize * moduleCount) / 2);
       
-      await new Promise((resolve, reject) => {
-        img.onload = resolve;
-        img.onerror = reject;
-        img.src = baseQRUrl;
-      });
-      
-      // Create canvas for artistic rendering
+      // Create canvas
       const canvas = document.createElement('canvas');
       canvas.width = effectiveSize;
       canvas.height = effectiveSize;
       const ctx = canvas.getContext('2d');
       
-      // Draw base QR to get module data
-      ctx.drawImage(img, 0, 0);
-      const imageData = ctx.getImageData(0, 0, effectiveSize, effectiveSize);
-      
-      // Clear and draw background
+      // Draw background
       ctx.fillStyle = bgColor;
       ctx.fillRect(0, 0, effectiveSize, effectiveSize);
       
-      // Calculate actual module size by detecting QR structure
-      // Find finder patterns (7x7 modules in corners) to determine module size
-      const detectModuleSize = (imgData, width) => {
-        // Scan from top-left to find first black pixel (finder pattern)
-        let startX = 0, startY = 0;
-        for (let y = 0; y < width; y++) {
-          for (let x = 0; x < width; x++) {
-            const idx = (y * width + x) * 4;
-            if (imgData.data[idx] < 128) {
-              startX = x;
-              startY = y;
-              break;
-            }
-          }
-          if (startX > 0) break;
-        }
-        
-        // Measure the width of the first black line (should be 7 modules wide)
-        let moduleWidth = 0;
-        for (let x = startX; x < width; x++) {
-          const idx = (startY * width + x) * 4;
-          if (imgData.data[idx] < 128) {
-            moduleWidth++;
-          } else {
-            break;
-          }
-        }
-        
-        // Finder pattern is 7 modules wide, so module size = width / 7
-        const detectedSize = Math.max(1, Math.round(moduleWidth / 7));
-        return detectedSize;
-      };
+      // Set foreground color
+      ctx.fillStyle = fgColor;
       
-      const moduleSize = detectModuleSize(imageData, effectiveSize);
-      
-      // Scan and draw artistic modules
-      for (let y = 0; y < effectiveSize; y += moduleSize) {
-        for (let x = 0; x < effectiveSize; x += moduleSize) {
-          const idx = (y * effectiveSize + x) * 4;
-          const brightness = imageData.data[idx];
-          const isDark = brightness < 128;
-          
-          if (isDark) {
+      // Draw modules using actual QR matrix
+      for (let row = 0; row < moduleCount; row++) {
+        for (let col = 0; col < moduleCount; col++) {
+          if (modules.data[row * moduleCount + col]) {
+            const x = offset + col * moduleSize;
+            const y = offset + row * moduleSize;
             drawArtisticModule(ctx, x, y, moduleSize, artStyle, true);
           }
         }
