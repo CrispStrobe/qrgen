@@ -112,37 +112,52 @@ function QRGenerator({ addToHistory, darkMode }) {
     
     switch (style) {
       case 'rounded':
-        const radius = moduleSize * 0.4;
+        // Draw full square with rounded visual effect overlay
+        ctx.fillRect(x, y, moduleSize, moduleSize);
+        // Add rounded corners as visual effect only
+        ctx.save();
+        ctx.globalCompositeOperation = 'destination-out';
+        ctx.fillStyle = bgColor;
+        const cornerRadius = moduleSize * 0.15;
+        // Cut out small corners for visual effect
         ctx.beginPath();
-        ctx.roundRect(x, y, moduleSize, moduleSize, radius);
+        ctx.arc(x + cornerRadius, y + cornerRadius, cornerRadius, 0, Math.PI * 2);
         ctx.fill();
+        ctx.beginPath();
+        ctx.arc(x + moduleSize - cornerRadius, y + cornerRadius, cornerRadius, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.beginPath();
+        ctx.arc(x + cornerRadius, y + moduleSize - cornerRadius, cornerRadius, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.beginPath();
+        ctx.arc(x + moduleSize - cornerRadius, y + moduleSize - cornerRadius, cornerRadius, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
         break;
         
       case 'dots':
-        // Use filled circles with proper spacing for better detection
-        const dotRadius = moduleSize / 2 * 0.85; // 85% of module for good spacing
+        // Draw full circle that fills most of the module
         ctx.beginPath();
-        ctx.arc(x + moduleSize / 2, y + moduleSize / 2, dotRadius, 0, Math.PI * 2);
+        ctx.arc(x + moduleSize / 2, y + moduleSize / 2, moduleSize / 2 * 0.95, 0, Math.PI * 2);
         ctx.fill();
         break;
         
       case 'liquid':
-        ctx.beginPath();
-        const cx = x + moduleSize / 2;
-        const cy = y + moduleSize / 2;
-        const r = moduleSize / 2;
-        for (let i = 0; i < 6; i++) {
-          const angle = (i / 6) * Math.PI * 2;
-          const px = cx + r * Math.cos(angle) * (0.8 + Math.random() * 0.2);
-          const py = cy + r * Math.sin(angle) * (0.8 + Math.random() * 0.2);
-          if (i === 0) ctx.moveTo(px, py);
-          else ctx.lineTo(px, py);
+        // Draw full module with slight organic variation
+        ctx.fillRect(x, y, moduleSize, moduleSize);
+        // Add slight wavy effect at edges only
+        ctx.save();
+        ctx.globalCompositeOperation = 'destination-out';
+        ctx.fillStyle = bgColor;
+        for (let i = 0; i < 4; i++) {
+          const offset = (Math.random() - 0.5) * moduleSize * 0.1;
+          ctx.fillRect(x + offset, y + offset, moduleSize * 0.08, moduleSize * 0.08);
         }
-        ctx.closePath();
-        ctx.fill();
+        ctx.restore();
         break;
         
       case 'geometric':
+        // Draw full diamond that fills the module
         ctx.beginPath();
         ctx.moveTo(x + moduleSize / 2, y);
         ctx.lineTo(x + moduleSize, y + moduleSize / 2);
@@ -155,32 +170,31 @@ function QRGenerator({ addToHistory, darkMode }) {
       case 'neon':
         // Glow effect - reduced blur for better edge detection
         ctx.shadowColor = fgColor;
-        ctx.shadowBlur = moduleSize * 0.5; // Reduced from full size to 50%
+        ctx.shadowBlur = moduleSize * 0.5;
         ctx.fillRect(x, y, moduleSize, moduleSize);
         ctx.shadowBlur = 0;
         break;
         
       case 'minimal':
-        // Increased module size for reliable scanning
-        const lineSize = moduleSize * 0.4; // Increased from 30% to 40%
-        ctx.fillRect(x + (moduleSize - lineSize) / 2, y + (moduleSize - lineSize) / 2, lineSize, lineSize);
+        // Draw full square with slightly smaller size
+        const padding = moduleSize * 0.15;
+        ctx.fillRect(x + padding, y + padding, moduleSize - padding * 2, moduleSize - padding * 2);
         break;
         
       case 'graffiti':
-        // Reduced randomness to maintain QR alignment
+        // Draw full square with minimal rotation
         ctx.save();
         ctx.translate(x + moduleSize / 2, y + moduleSize / 2);
-        ctx.rotate((Math.random() - 0.5) * 0.15); // Reduced from ±0.3 to ±0.15 radians
-        ctx.scale(1 + Math.random() * 0.1, 1 + Math.random() * 0.1); // Reduced scale variance
+        ctx.rotate((Math.random() - 0.5) * 0.05); // Very small rotation
         ctx.fillRect(-moduleSize / 2, -moduleSize / 2, moduleSize, moduleSize);
         ctx.restore();
         break;
         
       case 'watercolor':
-        // Increased minimum opacity for better contrast
-        ctx.globalAlpha = 0.8 + Math.random() * 0.2; // Raised from 0.7-1.0 to 0.8-1.0
+        // Draw full circle with consistent opacity
+        ctx.globalAlpha = 0.95; // High opacity for reliable scanning
         ctx.beginPath();
-        ctx.arc(x + moduleSize / 2, y + moduleSize / 2, moduleSize / 2 * (0.85 + Math.random() * 0.15), 0, Math.PI * 2);
+        ctx.arc(x + moduleSize / 2, y + moduleSize / 2, moduleSize / 2, 0, Math.PI * 2);
         ctx.fill();
         ctx.globalAlpha = 1;
         break;
