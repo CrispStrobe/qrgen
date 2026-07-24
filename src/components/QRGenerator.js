@@ -191,7 +191,7 @@ function QRGenerator({ addToHistory, darkMode }) {
       await QRCode.toCanvas(tempCanvas, content, {
         width: size,
         margin: 2,
-        color: { dark: '0', light: '1' },
+        color: { dark: '#000000', light: '#FFFFFF' },
         errorCorrectionLevel: errorLevel,
       });
       
