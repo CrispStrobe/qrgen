@@ -14,7 +14,11 @@ function QRGenerator({ addToHistory, darkMode }) {
   const [showLogoUpload, setShowLogoUpload] = useState(false);
   const [logo, setLogo] = useState(null);
   const [logoSize, setLogoSize] = useState(60);
+  const [colorPickerActive, setColorPickerActive] = useState(false);
+  const [pickedColor, setPickedColor] = useState(null);
+  const [logoFileName, setLogoFileName] = useState('');
   const fileInputRef = useRef(null);
+  const logoCanvasRef = useRef(null);
 
   const generateQR = async () => {
     if (!content.trim()) return;
@@ -121,12 +125,61 @@ function QRGenerator({ addToHistory, darkMode }) {
     const file = e.target.files[0];
     if (!file) return;
     
+    setLogoFileName(file.name);
     const reader = new FileReader();
     reader.onload = (event) => {
       setLogo(event.target.result);
+      setColorPickerActive(false);
     };
     reader.readAsDataURL(file);
   };
+
+  const pickColorFromLogo = (e) => {
+    if (!logo || !logoCanvasRef.current) return;
+    
+    const canvas = logoCanvasRef.current;
+    const ctx = canvas.getContext('2d');
+    const rect = canvas.getBoundingClientRect();
+    
+    // Get click position
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    
+    // Scale to actual image size
+    const scaleX = canvas.width / rect.width;
+    const scaleY = canvas.height / rect.height;
+    
+    const imgX = x * scaleX;
+    const imgY = y * scaleY;
+    
+    // Get pixel data
+    const pixel = ctx.getImageData(imgX, imgY, 1, 1).data;
+    const r = pixel[0];
+    const g = pixel[1];
+    const b = pixel[2];
+    
+    // Convert to hex
+    const hex = '#' + [r, g, b].map(x => x.toString(16).padStart(2, '0')).join('');
+    
+    setPickedColor(hex);
+    setFgColor(hex);
+    setColorPickerActive(false);
+  };
+
+  useEffect(() => {
+    if (logo && logoCanvasRef.current) {
+      const canvas = logoCanvasRef.current;
+      const ctx = canvas.getContext('2d');
+      const img = new Image();
+      img.crossOrigin = 'anonymous';
+      img.onload = () => {
+        canvas.width = img.width;
+        canvas.height = img.height;
+        ctx.drawImage(img, 0, 0);
+      };
+      img.src = logo;
+    }
+  }, [logo]);
 
   const removeLogo = () => {
     setLogo(null);
@@ -244,7 +297,7 @@ function QRGenerator({ addToHistory, darkMode }) {
           {/* Logo Upload */}
           <div>
             <div className="flex justify-between items-center mb-1">
-              <label className="text-sm font-medium">Logo (Optional)</label>
+              <label className="text-sm font-medium">Logo/Brand Image</label>
               <button
                 onClick={() => setShowLogoUpload(!showLogoUpload)}
                 className="text-sm text-blue-600 hover:text-blue-700"
@@ -254,27 +307,88 @@ function QRGenerator({ addToHistory, darkMode }) {
             </div>
             
             {showLogoUpload && (
-              <div className="space-y-2">
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept="image/*"
-                  onChange={handleLogoUpload}
-                  className={`w-full p-2 rounded-lg border text-sm ${
-                    darkMode 
-                      ? 'bg-gray-700 border-gray-600' 
-                      : 'bg-white border-gray-300'
-                  }`}
-                />
+              <div className="space-y-3">
+                {/* File Picker */}
+                <div className={`border-2 border-dashed rounded-lg p-4 text-center ${
+                  darkMode ? 'border-gray-600 bg-gray-700' : 'border-gray-300 bg-gray-50'
+                }`}>
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/*"
+                    onChange={handleLogoUpload}
+                    className="hidden"
+                    id="logo-upload"
+                  />
+                  <label
+                    htmlFor="logo-upload"
+                    className="cursor-pointer"
+                  >
+                    <FiImage size={32} className="mx-auto mb-2 opacity-50" />
+                    <p className={`text-sm ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+                      {logoFileName || 'Click to select image'}
+                    </p>
+                    <p className={`text-xs mt-1 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                      PNG, JPG, SVG supported
+                    </p>
+                  </label>
+                </div>
                 
+                {/* Logo Preview with Color Picker */}
                 {logo && (
-                  <div className="flex items-center gap-2">
-                    <img 
-                      src={logo} 
-                      alt="Logo preview" 
-                      className="w-12 h-12 object-contain rounded"
-                    />
-                    <div className="flex-1">
+                  <div className={`p-3 rounded-lg ${darkMode ? 'bg-gray-700' : 'bg-gray-100'}`}>
+                    <div className="flex items-start gap-3">
+                      <div className="relative">
+                        <canvas
+                          ref={logoCanvasRef}
+                          src={logo}
+                          alt="Logo preview"
+                          className={`w-24 h-24 object-contain rounded border ${
+                            colorPickerActive ? 'cursor-crosshair border-blue-500' : darkMode ? 'border-gray-600' : 'border-gray-300'
+                          }`}
+                          onClick={colorPickerActive ? pickColorFromLogo : undefined}
+                        />
+                        {colorPickerActive && (
+                          <div className="absolute inset-0 bg-blue-500 bg-opacity-20 rounded pointer-events-none animate-pulse" />
+                        )}
+                      </div>
+                      
+                      <div className="flex-1">
+                        <p className="text-sm font-medium truncate mb-2">{logoFileName}</p>
+                        
+                        {/* Color Picker Button */}
+                        <button
+                          onClick={() => setColorPickerActive(!colorPickerActive)}
+                          className={`w-full flex items-center justify-center gap-2 py-2 px-3 rounded text-sm transition-colors ${
+                            colorPickerActive
+                              ? 'bg-blue-600 text-white'
+                              : darkMode 
+                                ? 'bg-gray-600 hover:bg-gray-500 text-white'
+                                : 'bg-gray-200 hover:bg-gray-300 text-gray-800'
+                          }`}
+                        >
+                          <span className="inline-block w-4 h-4 rounded-full border border-white shadow-sm" 
+                            style={{ backgroundColor: pickedColor || fgColor }} 
+                          />
+                          {colorPickerActive ? 'Click on logo to pick color' : 'Extract color from logo'}
+                        </button>
+                        
+                        {/* Remove Logo */}
+                        <button
+                          onClick={() => {
+                            removeLogo();
+                            setLogoFileName('');
+                            setColorPickerActive(false);
+                          }}
+                          className="w-full mt-2 py-1 px-3 text-sm text-red-600 hover:text-red-700"
+                        >
+                          Remove Logo
+                        </button>
+                      </div>
+                    </div>
+                    
+                    {/* Logo Size Slider */}
+                    <div className="mt-3 pt-3 border-t border-gray-600">
                       <label className="block text-xs mb-1">Logo size: {logoSize}px</label>
                       <input
                         type="range"
@@ -285,12 +399,6 @@ function QRGenerator({ addToHistory, darkMode }) {
                         className="w-full"
                       />
                     </div>
-                    <button
-                      onClick={removeLogo}
-                      className="p-1 text-red-500 hover:text-red-700"
-                    >
-                      <FiX size={20} />
-                    </button>
                   </div>
                 )}
               </div>
