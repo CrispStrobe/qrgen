@@ -1,70 +1,64 @@
-# Getting Started with Create React App
+# QR Code Generator
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+A production-ready QR code generator application with dual deployment strategy.
 
-## Available Scripts
+## Deployments
 
-In the project directory, you can run:
+### Public Version (GitHub Pages)
+- **URL**: https://crispstrobe.github.io/qrgen
+- **Branch**: `main`
+- **Features**: Generic QR code generator (no default logo)
+- **Use Case**: Public-facing, general audience
 
-### `npm start`
+### Akademie Version (Vercel)
+- **URL**: Deployed via Vercel
+- **Branch**: `akademie`
+- **Features**: Akademie-A branded QR codes
+- **Use Case**: Internal/branded use
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+## Development
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+```bash
+# Install dependencies
+npm install
 
-### `npm test`
+# Run development server
+npm start
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+# Build for production
+npm run build
+```
 
-### `npm run build`
+## Deployment
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+### GitHub Pages (Automatic)
+Push to `main` branch triggers automatic deployment.
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+### Vercel (Manual)
+```bash
+# Switch to akademie branch
+git checkout akademie
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+# Deploy to Vercel
+vercel --prod
+```
 
-### `npm run eject`
+## Branch Structure
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+- `main` - Public version (GitHub Pages)
+- `akademie` - Akademie-branded version (Vercel)
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+## Features
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+- QR code generation with customizable colors
+- Configurable size and error correction levels
+- Optional logo/branding support
+- Download generated QR codes as PNG
+- Modern, responsive UI
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+## Technology Stack
 
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+- React 19
+- QRCode.js library
+- Tailwind CSS
+- GitHub Actions for CI/CD

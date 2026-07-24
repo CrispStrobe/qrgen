@@ -1,0 +1,34 @@
+{
+  "/Users/christianstrobele/Documents/texte/Landgraf Artur Michael/1955 ZUR LEHRE DES GILBERT PORRETAde.pdf.txt": {
+    "id": "b71b86c01a09528fe3be818241b974dc",
+    "modifiedAt": 1741737391.4362438,
+    "hash": "9bc1bc0fc1534436fa4038ef6e336576",
+    "lastIndexed": 1742337397.920302,
+    "fileSize": 27242,
+    "chunks_count": 4
+  },
+  "/Users/christianstrobele/Documents/texte/K\u00d6HLER RUDOLF/1955 DER DEUS ABSCONDITUS IN PHILOSOPHIE UND THEOLOGIEde.pdf.txt": {
+    "id": "45564211fd95554cbf24568e6ecda62c",
+    "modifiedAt": 1741886472.5903165,
+    "hash": "fb2ec07630a8fd3d6e4071baa97376b6",
+    "lastIndexed": 1742337403.86194,
+    "fileSize": 37433,
+    "chunks_count": 6
+  },
+  "/Users/christianstrobele/Documents/texte/Stemberger G\u00fcnter/1955 Gedanken zur Zeit in hebr\u00e4ischen Gedichten des 11-12 Jahrhunderts in Spanien.pdf.txt": {
+    "id": "7279a922b915ac8dca7fc4bd4ce47053",
+    "modifiedAt": 1741879751.6165683,
+    "hash": "3f4a7215ebe7ec779c2398c0dc77ae87",
+    "lastIndexed": 1742337404.994575,
+    "fileSize": 42262,
+    "chunks_count": 6
+  },
+  "/Users/christianstrobele/Documents/texte/Rosenkranz Gerhard/1955 Wege und Grenzen des religionswissenschaftlichen Erkennensde.pdf.txt": {
+    "id": "ad74dfca38f7c7906bf3c564817d9422",
+    "modifiedAt": 1741890496.6539252,
+    "hash": "53be5a0e56805646931cc65acf40b64e",
+    "lastIndexed": 1742337413.426523,
+    "fileSize": 85333,
+    "chunks_count": 13
+  }
+}
