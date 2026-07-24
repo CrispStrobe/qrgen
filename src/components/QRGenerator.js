@@ -38,8 +38,14 @@ function QRGenerator({ addToHistory, darkMode }) {
 
   const artStyles = [
     { id: 'standard', name: 'Standard', desc: 'Classic squares' },
-    { id: 'neon', name: 'Neon Glow', desc: 'Glow effect' },
+    { id: 'dots', name: 'Dots', desc: 'Circular data modules' },
+    { id: 'rounded', name: 'Rounded', desc: 'Smooth corners on data' },
+    { id: 'geometric', name: 'Geometric', desc: 'Diamond data modules' },
+    { id: 'neon', name: 'Neon Glow', desc: 'Glowing cyberpunk' },
     { id: 'minimal', name: 'Minimal', desc: 'Clean & simple' },
+    { id: 'liquid', name: 'Liquid', desc: 'Fluid data shapes' },
+    { id: 'graffiti', name: 'Graffiti', desc: 'Street art style' },
+    { id: 'watercolor', name: 'Watercolor', desc: 'Soft painted effect' },
   ];
 
   // Drag and drop handlers
@@ -99,21 +105,83 @@ function QRGenerator({ addToHistory, darkMode }) {
     reader.readAsDataURL(file);
   };
 
-  // Artistic QR module shapes
-  const drawArtisticModule = (ctx, x, y, moduleSize, style, isDark) => {
+  // Check if module is a functional pattern (finder, timing, alignment)
+  const isFunctionalPattern = (row, col, moduleCount) => {
+    // Finder patterns (7x7 in corners)
+    // Top-left finder
+    if (row < 7 && col < 7) return true;
+    // Top-right finder
+    if (row < 7 && col >= moduleCount - 7) return true;
+    // Bottom-left finder
+    if (row >= moduleCount - 7 && col < 7) return true;
+    
+    // Timing patterns (row 6 and col 6)
+    if (row === 6 || col === 6) return true;
+    
+    // Alignment patterns (version-dependent, simplified check)
+    // For most QR codes, alignment patterns appear at specific positions
+    // This is a simplified check that catches most alignment patterns
+    if (moduleCount >= 25) {
+      // Larger QR codes have alignment patterns
+      const alignmentPos = moduleCount - 7;
+      if (row >= alignmentPos - 2 && row <= alignmentPos + 2 && 
+          col >= alignmentPos - 2 && col <= alignmentPos + 2) return true;
+    }
+    
+    // Format information areas (around finder patterns)
+    // Near top-left finder
+    if ((row < 9 && col === 8) || (row === 8 && col < 9)) return true;
+    // Near top-right finder  
+    if (row < 8 && col === moduleCount - 8) return true;
+    // Near bottom-left finder
+    if (row === moduleCount - 8 && col < 8) return true;
+    
+    return false;
+  };
+
+  // Artistic QR module shapes (only for DATA modules)
+  const drawArtisticModule = (ctx, x, y, moduleSize, style, isDark, isFunctional) => {
     if (!isDark) return;
     
+    // Functional patterns ALWAYS drawn as standard squares
+    if (isFunctional) {
+      ctx.fillStyle = fgColor;
+      ctx.fillRect(x, y, moduleSize, moduleSize);
+      return;
+    }
+    
+    // Data modules can have artistic styles
     ctx.fillStyle = fgColor;
     
     switch (style) {
-      // WORKING STYLES - These draw full squares
-      case 'standard':
-      default:
-        ctx.fillRect(x, y, moduleSize, moduleSize);
+      case 'dots':
+        // Circle that fills the module completely
+        ctx.beginPath();
+        ctx.arc(x + moduleSize / 2, y + moduleSize / 2, moduleSize / 2 * 0.9, 0, Math.PI * 2);
+        ctx.fill();
+        break;
+        
+      case 'rounded':
+        // Rounded square (90% of module)
+        const radius = moduleSize * 0.2;
+        ctx.beginPath();
+        ctx.roundRect(x, y, moduleSize, moduleSize, radius);
+        ctx.fill();
+        break;
+        
+      case 'geometric':
+        // Diamond that fills most of the module
+        ctx.beginPath();
+        ctx.moveTo(x + moduleSize / 2, y);
+        ctx.lineTo(x + moduleSize, y + moduleSize / 2);
+        ctx.lineTo(x + moduleSize / 2, y + moduleSize);
+        ctx.lineTo(x, y + moduleSize / 2);
+        ctx.closePath();
+        ctx.fill();
         break;
         
       case 'neon':
-        // Glow effect on full square
+        // Square with glow
         ctx.shadowColor = fgColor;
         ctx.shadowBlur = moduleSize * 0.5;
         ctx.fillRect(x, y, moduleSize, moduleSize);
@@ -121,10 +189,50 @@ function QRGenerator({ addToHistory, darkMode }) {
         break;
         
       case 'minimal':
-        // Smaller square (70% size) - still reliable
-        const padding = moduleSize * 0.15;
-        ctx.fillRect(x + padding, y + padding, moduleSize - padding * 2, moduleSize - padding * 2);
+        // Smaller square (75% size)
+        const pad = moduleSize * 0.125;
+        ctx.fillRect(x + pad, y + pad, moduleSize - pad * 2, moduleSize - pad * 2);
         break;
+        
+      case 'liquid':
+        // Slightly organic shape
+        ctx.beginPath();
+        const cx = x + moduleSize / 2;
+        const cy = y + moduleSize / 2;
+        const r = moduleSize / 2 * 0.95;
+        for (let i = 0; i < 8; i++) {
+          const angle = (i / 8) * Math.PI * 2;
+          const variation = 0.9 + Math.sin(angle * 3) * 0.1;
+          const px = cx + r * Math.cos(angle) * variation;
+          const py = cy + r * Math.sin(angle) * variation;
+          if (i === 0) ctx.moveTo(px, py);
+          else ctx.lineTo(px, py);
+        }
+        ctx.closePath();
+        ctx.fill();
+        break;
+        
+      case 'graffiti':
+        // Square with slight rotation
+        ctx.save();
+        ctx.translate(x + moduleSize / 2, y + moduleSize / 2);
+        ctx.rotate((Math.random() - 0.5) * 0.1);
+        ctx.fillRect(-moduleSize / 2 * 0.9, -moduleSize / 2 * 0.9, moduleSize * 0.9, moduleSize * 0.9);
+        ctx.restore();
+        break;
+        
+      case 'watercolor':
+        // Circle with high opacity
+        ctx.globalAlpha = 0.95;
+        ctx.beginPath();
+        ctx.arc(x + moduleSize / 2, y + moduleSize / 2, moduleSize / 2 * 0.92, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.globalAlpha = 1;
+        break;
+        
+      case 'standard':
+      default:
+        ctx.fillRect(x, y, moduleSize, moduleSize);
     }
   };
 
@@ -171,7 +279,8 @@ function QRGenerator({ addToHistory, darkMode }) {
           if (modules.data[row * moduleCount + col]) {
             const x = offset + col * moduleSize;
             const y = offset + row * moduleSize;
-            drawArtisticModule(ctx, x, y, moduleSize, artStyle, true);
+            const isFunctional = isFunctionalPattern(row, col, moduleCount);
+            drawArtisticModule(ctx, x, y, moduleSize, artStyle, true, isFunctional);
           }
         }
       }
