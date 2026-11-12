@@ -11,10 +11,9 @@ A production-ready QR code generator application with dual deployment strategy.
 - **Use Case**: Public-facing, general audience
 
 ### Akademie Version (Vercel)
-- **URL**: Deployed via Vercel
-- **Branch**: `akademie`
-- **Features**: Akademie-A branded QR codes
-- **Use Case**: Internal/branded use
+- **URL**: https://qr.akademie-rs.de
+- **Source**: `main`
+- **Project**: `qr-generator` in the `crispstrobes-projects` Vercel scope
 
 ## Development
 
@@ -34,19 +33,19 @@ npm run build
 ### GitHub Pages (Automatic)
 Push to `main` branch triggers automatic deployment.
 
-### Vercel (Manual)
-```bash
-# Switch to akademie branch
-git checkout akademie
+### Vercel (manual production deployment)
 
-# Deploy to Vercel
-vercel --prod
+The `qr-generator` Vercel project is not linked to a Git repository, so pushing
+`main` does not deploy it. From a clean checkout of the intended `main` commit,
+link the directory to the existing project and deploy it with the Vercel CLI:
+
+```bash
+vercel link --yes --scope crispstrobes-projects --project qr-generator
+vercel deploy --prod --scope crispstrobes-projects
 ```
 
-## Branch Structure
-
-- `main` - Public version (GitHub Pages)
-- `akademie` - Akademie-branded version (Vercel)
+`vercel.json` builds for the root domain. The GitHub Pages build retains the
+`/qrgen/` subpath from `package.json`.
 
 ## Features
 
